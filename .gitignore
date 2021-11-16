@@ -1,0 +1,3 @@
+#msvc trash
+*.vcxproj*
+/Debug
