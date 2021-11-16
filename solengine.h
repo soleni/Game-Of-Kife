@@ -5,12 +5,11 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
-
-#include <iostream>
+#include <atomic>
 
 namespace solengine 
 {
-	using dot = std::pair<uint16_t, uint16_t>;
+	using dot = std::pair<int16_t, int16_t>;
 	using dots = std::vector<dot>;
 
 	solengine::dots _active_dots;
@@ -20,31 +19,33 @@ namespace solengine
 
 	void render_func()
 	{
+		glColor3f(0.0, 0.0, 0.0);
 		glBegin(GL_POINTS);
-		glColor3f(1.0, 1.0, 1.0); // draw
-		glVertex2d(d, d); //use reserve buffer
+		#pragma omp for 
+			for (int i = 0 ; i < _reserve_dots.size() && _reserve_dots[i].first >= 0; ++i)
+				glVertex2d(_reserve_dots[i].first, _reserve_dots[i].second);
 		glEnd();
 
 		glutSwapBuffers();
-		//swap dots buffer here
 
+		glColor3f(1.0, 1.0, 1.0);
 		glBegin(GL_POINTS);
-		glColor3f(0.0, 0.0, 0.0); //clear
-		glVertex2d(d - 2, d - 2); // use reserve buffer too
+		#pragma omp for 
+			for (int i = 0; i < _active_dots.size() && _active_dots[i].first >= 0; ++i)
+				glVertex2d(_active_dots[i].first, _active_dots[i].second);
 		glEnd();
-
-		for (int i = 0; i < 1000000000; ++i)
-			++i;
-
-		d += 2;
 
 		glutPostRedisplay();
 	}
 
-	void init_solengine(int argc, char** argv, uint16_t x, uint16_t y)
+	void init_solengine(int argc, char** argv, int16_t x, int16_t y)
 	{
+		_active_dots.resize(x * y);
+		_reserve_dots.resize(x * y);
+
+		std::atomic<bool> glut_inited{ false };
 		std::thread render_thread([&]()
-		{
+		{	
 			glutInit(&argc, argv);
 			glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 			glutInitWindowSize(x, y);
@@ -54,10 +55,13 @@ namespace solengine
 
 			glPointSize(1.0);
 			gluOrtho2D(0, x, 0, y);
+			
+			glut_inited.store(true, std::memory_order_relaxed);
 
 			glutMainLoop();
 		});
-		render_thread.join();
+		while (!glut_inited.load(std::memory_order_relaxed));
+		render_thread.detach();
 	}
 
 	void update_dots()
