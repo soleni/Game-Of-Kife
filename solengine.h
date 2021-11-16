@@ -19,21 +19,16 @@ namespace solengine
 
 	void render_func()
 	{
-		glColor3f(0.0, 0.0, 0.0);
-		glBegin(GL_POINTS);
-		#pragma omp for 
-			for (int i = 0 ; i < _reserve_dots.size() && _reserve_dots[i].first >= 0; ++i)
-				glVertex2d(_reserve_dots[i].first, _reserve_dots[i].second);
-		glEnd();
-
-		glutSwapBuffers();
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		glColor3f(1.0, 1.0, 1.0);
 		glBegin(GL_POINTS);
 		#pragma omp for 
-			for (int i = 0; i < _active_dots.size() && _active_dots[i].first >= 0; ++i)
+			for (int i = 0 ; i < _active_dots.size() && _active_dots[i].first >= 0; ++i)
 				glVertex2d(_active_dots[i].first, _active_dots[i].second);
 		glEnd();
+
+		glutSwapBuffers();
 
 		glutPostRedisplay();
 	}
@@ -48,12 +43,12 @@ namespace solengine
 		{	
 			glutInit(&argc, argv);
 			glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-			glutInitWindowSize(x, y);
+			glutInitWindowSize(x * 5, y * 5);
 			glutInitWindowPosition(0, 0);
 			glutCreateWindow("GameOfKife");
 			glutDisplayFunc(render_func);
 
-			glPointSize(1.0);
+			glPointSize(5.0);
 			gluOrtho2D(0, x, 0, y);
 			
 			glut_inited.store(true, std::memory_order_relaxed);
