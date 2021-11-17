@@ -7,8 +7,12 @@
 
 #include <GL/glut.h>
 
-struct pair_hash {
-	inline std::size_t operator()(const std::pair<int, int>& v) const {
+const uint8_t map_size = 100;
+
+struct pair_hash 
+{
+	inline std::size_t operator()(const std::pair<int, int>& v) const 
+	{
 		return v.first * 1000 + v.second;
 	}
 };
@@ -61,27 +65,27 @@ int main(int argc, char** argv)
 	};
 
 	/* glider */
-	kife.emplace(5, 5);
-	kife.emplace(6, 6);
-	kife.emplace(6, 7);
-	kife.emplace(5, 7);
-	kife.emplace(4, 7);
+	kife.emplace(15, 15);
+	kife.emplace(16, 16);
+	kife.emplace(16, 17);
+	kife.emplace(15, 17);
+	kife.emplace(14, 17);
 	
 
-	/* blinker
+	/* blinker */
 	kife.emplace(6, 7);
 	kife.emplace(7, 7);
 	kife.emplace(8, 7);
-	*/
+	
 
-	/* beacon
+	/* beacon */
 	kife.emplace(10, 10);
 	kife.emplace(11, 10);
 	kife.emplace(10, 11);
 	kife.emplace(13, 13);
 	kife.emplace(13, 12);
 	kife.emplace(12, 13);
-	*/
+	
 
 	while (true)
 	{

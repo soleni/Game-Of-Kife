@@ -15,17 +15,16 @@ namespace solengine
 	solengine::dots _active_dots;
 	solengine::dots _reserve_dots;
 
-	double d = 1;
+	uint8_t SCALE = 10;
 
 	void render_func()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glColor3f(1.0, 1.0, 1.0);
 		glBegin(GL_POINTS);
 		#pragma omp for 
 			for (int i = 0 ; i < _active_dots.size() && _active_dots[i].first >= 0; ++i)
-				glVertex2d(_active_dots[i].first, _active_dots[i].second);
+				glVertex3d(_active_dots[i].first, _active_dots[i].second, 0.0);
 		glEnd();
 
 		glutSwapBuffers();
@@ -43,12 +42,13 @@ namespace solengine
 		{	
 			glutInit(&argc, argv);
 			glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-			glutInitWindowSize(x * 5, y * 5);
+			glutInitWindowSize(x * SCALE, y * SCALE);
 			glutInitWindowPosition(0, 0);
+			glColor3f(1.0, 1.0, 1.0);
 			glutCreateWindow("GameOfKife");
 			glutDisplayFunc(render_func);
 
-			glPointSize(5.0);
+			glPointSize(SCALE);
 			gluOrtho2D(0, x, 0, y);
 			
 			glut_inited.store(true, std::memory_order_relaxed);
