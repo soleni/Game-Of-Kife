@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <atomic>
+#include <mutex>
 
 namespace solengine 
 {
@@ -17,15 +18,24 @@ namespace solengine
 
 	uint8_t SCALE = 10;
 
+	std::mutex m;
+	std::atomic<bool> rerender{ false };
+
 	void render_func()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBegin(GL_POINTS);
-		#pragma omp for 
-			for (int i = 0 ; i < _active_dots.size() && _active_dots[i].first >= 0; ++i)
+		while (!rerender.load(std::memory_order_relaxed));
+
+		{
+			glBegin(GL_POINTS);
+			#pragma omp for 
+			for (int i = 0; i < _active_dots.size() && _active_dots[i].first >= 0; ++i)
 				glVertex3d(_active_dots[i].first, _active_dots[i].second, 0.0);
-		glEnd();
+			glEnd();
+		}
+
+		rerender.store(false);
 
 		glutSwapBuffers();
 
@@ -61,6 +71,8 @@ namespace solengine
 
 	void update_dots()
 	{
+		while (rerender.load(std::memory_order_relaxed));
 		std::swap(_reserve_dots, _active_dots);
+		rerender.store(true);
 	}
 }

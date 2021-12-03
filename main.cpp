@@ -13,7 +13,7 @@ struct pair_hash
 {
 	inline std::size_t operator()(const std::pair<int, int>& v) const 
 	{
-		return v.first * 1000 + v.second;
+		return v.first * 10000 + v.second;
 	}
 };
 
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		play_kife();
 		render_kife();
 	}
